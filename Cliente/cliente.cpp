@@ -55,10 +55,12 @@ void Cliente::read_block()
             QDir dir_folder = dir;
             QString new_folder = dir.absoluteFilePath("");
             dir_folder.mkdir(new_folder);
+
         }
         for (int q = 0; q < num ; q++){
             read >> name;
             read >> contain;
+            ui->listWidget->addItem(name);
             QFile file(dir.absoluteFilePath(name));
             if (file.open(QIODevice::WriteOnly)){
                 file.write(contain);
@@ -191,6 +193,7 @@ void Cliente::do_block(QString relative_dir, QDir dir)
             QByteArray cpy;
             cpy = file_.readAll();
             out << f.fileName();
+            ui->listWidget->addItem(f.fileName());
             out << cpy; //Archivo 5/5   qbytearray
             byte += file_.size();
         }
