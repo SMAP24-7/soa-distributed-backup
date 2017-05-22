@@ -8,10 +8,13 @@ LocalServer::LocalServer(QObject *parent) : QTcpServer(parent)
     mSocket = nullptr;
     sSocket = nullptr;
 
-    qRegisterMetaType<QString>("QString");
-    connect(this,SIGNAL(newConnection()),this,SLOT(nueva_Conexion()));
-}
 
+    qRegisterMetaType<int>("int");
+    connect(this,SIGNAL(newConnection()),this,SLOT(nueva_Conexion()));
+    connect(mSocket,SIGNAL(disconnected()),this,SLOT(desconexion()));
+
+    //connect(this,SIGNAL(numero_clientes(int)),widget_,SLOT(numero_clientes(int)));
+}
 LocalServer::~LocalServer()
 {
 }
@@ -19,82 +22,71 @@ LocalServer::~LocalServer()
 void LocalServer::leer()
 {
     if (mSocket->readBufferSize() > mSocket->bytesAvailable()){
-        QDataStream read(mSocket->read(mSocket->bytesAvailable()));
-        qDebug() << sizeof(read) << " bytes a leer";
-        quint64 bytesize;
-        QString dir;
-        int num = 0;
-        QString name;
-        QByteArray contain;
+        QByteArray read(mSocket->read(mSocket->bytesAvailable()));
 
-        read >> bytesize;
-        read >> dir;
-        read >> num;
-
-        if (num > 0){
-            read >> name;
-            read >> contain;
-        }
-        byte_read_ += bytesize;
-        if (bytesize > 0){
             for (int q  = 0; q < list_.size(); q++){
                 QTcpSocket *cSocket = list_[q];
 
-                QByteArray client;
-                QDataStream out(&client, QIODevice::WriteOnly);
-
-                out << bytesize;
-                out << dir;
-                out << num;
-                if (num > 0){
-                    out << name;
-                    out << contain;
-                }
-                cSocket->write(client);
-                cSocket->waitForReadyRead(300);
+                cSocket->write(read,(qint64)read.size());
+                cSocket->waitForBytesWritten(3000);
+                qDebug() << read.size() << " bytes a enviar a " << list_.size() << " clientes";
                 cSocket->flush();
             }
-        }
     }
 }
 
 void LocalServer::nueva_Conexion()
 {
     mSocket = nextPendingConnection();
-    if (!mSocket->waitForReadyRead(1000)){
+    mSocket->waitForReadyRead(500);
+    if (!mSocket->bytesAvailable()){
         list_.append(mSocket);
+        if(origen)
+            envia();
     }
     else{
+        origen = true;
+        oSocket = mSocket;
         envia();
     }
 }
 
+void LocalServer::desconexion()
+{
+    mSocket = nextPendingConnection();
+    list_.removeOne(mSocket);
+}
+
 void LocalServer::envia()
 {
+    mSocket = oSocket;
     if (mSocket){
         mSocket->setReadBufferSize(Buffer_);
         QDataStream read(mSocket->read(mSocket->bytesAvailable()));
-        quint64 bytesize;
+        int bytesize;
         int num;
         quint64 size;
+        QByteArray num_client;
+        QDataStream out(&num_client, QIODevice::WriteOnly);
 
         read >> bytesize;
         read >> num;
         read >> size;
         qDebug() << bytesize;
         qDebug() << num;
-        size_ = size;
+        if (num != 0){
+            size_ = size;
+            num_conexiones_ = num;
+            bytesize_ = bytesize;
+        }
 
-        if(num <= list_.size()){
+
+        if(num_conexiones_ >= list_.size() && list_.size() != 0 && origen){
             num = list_.size();
             qDebug() << "hay clientes";
-            QByteArray num_client;
-            QDataStream out(&num_client, QIODevice::WriteOnly);
-            out << (quint64)0;
-            out << num;
-            out.device()->seek(0);
 
-            out << quint64((2*sizeof(quint64) - sizeof(quint64)));
+            out << list_.size();
+            out << num;
 
             mSocket->write(num_client);
             mSocket->flush();
@@ -107,17 +99,19 @@ void LocalServer::envia()
                 quint64 byte_signal = 1;
 
                 out_clients << byte_signal;
-                out_clients << size;
+                out_clients << size_;
 
                 cSocket->write(client);
-                cSocket->waitForReadyRead(30);
+                if (!cSocket->bytesToWrite())
+                    cSocket->waitForBytesWritten(-1);
                 cSocket->flush();
             }
 
             connect(mSocket,SIGNAL(readyRead()),this,SLOT(leer()));
         }
         else{
-            qDebug() << "no hay clientes";
+            out << list_.size();
+            mSocket->write(num_client);
         }
     }
 }

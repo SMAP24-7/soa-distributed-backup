@@ -13,6 +13,11 @@ Widget::~Widget()
     delete ui;
 }
 
+void Widget::numero_de_client(QString num)
+{
+    //ui->num_clientes->setText(QString::toStdString(num));
+}
+
 void Widget::on_iniciar_clicked()
 {
     if (!mServer->listen(QHostAddress::Any,ui->puerto->value()))

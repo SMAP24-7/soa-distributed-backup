@@ -58,13 +58,17 @@ private:
     QString Msj_completo_;
     quint16 blockSize_;
 
-    quint64 Buffer_ = 1024;
+    quint64 Buffer_ = 1024*1024*1024;
     quint64 size_files_ = 0;
     quint64 sender_block_ = 0;
+
+    quint64 buffer_llegada_ = 0;
+    QByteArray buffer_byte_llegada =0;
 
     void size_block(quint64 &byte, QDir dir);
     void do_block(QString relative_dir, QDir dir);
 
+    void write_data(QByteArray buffer_llegada);
 
 
 };

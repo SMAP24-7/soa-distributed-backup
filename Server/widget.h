@@ -19,8 +19,11 @@ class Widget : public QWidget
     Q_OBJECT
 
 public:
-    explicit Widget(QWidget *parent = 0);
+    Widget(QWidget *parent = 0);
     ~Widget();
+
+public slots:
+    void numero_de_client(QString num);
 
 private slots:
     void on_iniciar_clicked();
@@ -30,6 +33,8 @@ private slots:
 private:
     Ui::Widget *ui;
     LocalServer *mServer;
+
+
 };
 
 #endif // WIDGET_H
