@@ -8,17 +8,13 @@ Cliente::Cliente(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Cliente)
 {
-
     ui->setupUi(this);
-
     ui->conectar->setDisabled(true);
     ui->pushFolder->setDisabled(true);
     ui->maxclient->setHidden(true);
     ui->Origen->setHidden(true);
     ui->Destino->setHidden(true);
-
     mSocket = new QTcpSocket(this);
-
 }
 
 Cliente::~Cliente()
@@ -30,12 +26,10 @@ Cliente::~Cliente()
 void Cliente::read_block()
 {
     qDebug() << "mensaje de entrada";
-
     QByteArray block(mSocket->read(mSocket->bytesAvailable()));
     QDataStream read(&block,QIODevice::ReadOnly);
 
     int bytesize;
-
     quint64 size = 0;
     QString bit;
     int num;
@@ -59,7 +53,6 @@ void Cliente::read_block()
         while (bloque_exceso < block.size()){
             read >> bit;
             read >> num;
-
         QDir dir(data_.second + bit);
         if (!dir.exists()){
             QDir dir_folder = dir;
@@ -150,7 +143,6 @@ void Cliente::read_block()
     }
     ui->progressBar->setValue(sender_block_ / size_files_ *100);
     }
-
 }
 
 void Cliente::send_initial_block()
@@ -161,6 +153,7 @@ void Cliente::send_initial_block()
         QByteArray block_initial = NULL;
         int num_conexiones = ui->maxclient->value();
         int bytesize = 1;
+
 
         QDataStream out(&block_initial, QIODevice::WriteOnly);
         QDir dir(data_.second);
@@ -205,7 +198,6 @@ void Cliente::get_ruta()
     }
     else if (ui->radio_origen->isChecked()){
        send_initial_block();
-       qDebug() << "voy a enviar";
        }
 }
 
@@ -275,6 +267,7 @@ void Cliente::do_block(QString relative_dir, QDir dir)
         QFile file_(dir.filePath(list_files[q]));
         QFileInfo f(file_);
 
+
         //QFile fi(“C:/Files/Input.jpg”); // this is your input file
         //QFile fo(“C:/Files/output.compressed”); // this is your compressed output file
 /*
@@ -299,7 +292,6 @@ void Cliente::do_block(QString relative_dir, QDir dir)
             out << cpy; //Archivo 5/5   qbytearray
             byte += file_.size();
         }
-
     }
 
 
@@ -319,6 +311,7 @@ void Cliente::do_block(QString relative_dir, QDir dir)
             }
         }
     }
+
     /*else {
         do_block(relative_dir, dir);
     }*/
@@ -370,6 +363,7 @@ void Cliente::send_all_block()
         QDataStream read(mSocket->read(mSocket->bytesAvailable()));
         quint64 data;
         int client;
+
         QString espera;
         read >> client;
         if (client >= ui->maxclient->value()){

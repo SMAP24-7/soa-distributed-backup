@@ -13,6 +13,7 @@ Widget::~Widget()
     delete ui;
 }
 
+
 void Widget::numero_de_client(QString num)
 {
     //ui->num_clientes->setText(QString::toStdString(num));

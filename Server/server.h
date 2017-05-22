@@ -20,15 +20,12 @@ namespace Ui {
 class Widget;
 }
 
-//class Widget;
-
 class LocalServer : public QTcpServer
 {
     Q_OBJECT
 public:
     explicit LocalServer(QObject *parent = 0);
     ~LocalServer();
-
 
 signals:
 
@@ -37,6 +34,7 @@ public slots:
     void leer();
 
     void nueva_Conexion();
+
 
     void desconexion();
 
@@ -54,6 +52,7 @@ private:
     int num_conexiones_ = 0;
     int bytesize_;
     bool origen = false;
+
     QPair<QString,QString> data_;
 
      QList<QTcpSocket*> list_;

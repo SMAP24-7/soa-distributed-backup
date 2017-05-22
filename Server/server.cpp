@@ -9,6 +9,7 @@ LocalServer::LocalServer(QObject *parent) : QTcpServer(parent)
     sSocket = nullptr;
 
 
+
     qRegisterMetaType<int>("int");
     connect(this,SIGNAL(newConnection()),this,SLOT(nueva_Conexion()));
     connect(mSocket,SIGNAL(disconnected()),this,SLOT(desconexion()));
@@ -22,6 +23,7 @@ LocalServer::~LocalServer()
 void LocalServer::leer()
 {
     if (mSocket->readBufferSize() > mSocket->bytesAvailable()){
+
         QByteArray read(mSocket->read(mSocket->bytesAvailable()));
 
             for (int q  = 0; q < list_.size(); q++){
@@ -38,6 +40,7 @@ void LocalServer::leer()
 void LocalServer::nueva_Conexion()
 {
     mSocket = nextPendingConnection();
+
     mSocket->waitForReadyRead(500);
     if (!mSocket->bytesAvailable()){
         list_.append(mSocket);
@@ -50,6 +53,7 @@ void LocalServer::nueva_Conexion()
         envia();
     }
 }
+
 
 void LocalServer::desconexion()
 {
@@ -74,6 +78,7 @@ void LocalServer::envia()
         read >> size;
         qDebug() << bytesize;
         qDebug() << num;
+
         if (num != 0){
             size_ = size;
             num_conexiones_ = num;
@@ -99,6 +104,7 @@ void LocalServer::envia()
                 quint64 byte_signal = 1;
 
                 out_clients << byte_signal;
+
                 out_clients << size_;
 
                 cSocket->write(client);
@@ -110,6 +116,7 @@ void LocalServer::envia()
             connect(mSocket,SIGNAL(readyRead()),this,SLOT(leer()));
         }
         else{
+
             out << list_.size();
             mSocket->write(num_client);
         }
