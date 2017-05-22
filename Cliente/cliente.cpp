@@ -267,23 +267,6 @@ void Cliente::do_block(QString relative_dir, QDir dir)
         QFile file_(dir.filePath(list_files[q]));
         QFileInfo f(file_);
 
-
-        //QFile fi(“C:/Files/Input.jpg”); // this is your input file
-        //QFile fo(“C:/Files/output.compressed”); // this is your compressed output file
-/*
-        if(file_.open(QFile::ReadOnly))
-        {
-        QByteArray cpy,cpy_umc;
-        int compress_level = 9; // compression level
-        cpy = (qCompress(file_.readAll(), compress_level)); // read input, compress and write to output is a single line of code
-        qDebug() << "nombre archivo --> " << f.fileName();
-
-        out << f.fileName(); //Nombre archivo 4/5 QFile
-        ui->listWidget->addItem(f.fileName());
-        out << cpy; //Archivo 5/5   qbytearray
-        byte += f.size();
-        }
-*/
         if (file_.open(QIODevice::ReadOnly)){
             QByteArray cpy;
             cpy = file_.readAll();
@@ -311,10 +294,6 @@ void Cliente::do_block(QString relative_dir, QDir dir)
             }
         }
     }
-
-    /*else {
-        do_block(relative_dir, dir);
-    }*/
 }
 
 void Cliente::write_data(QByteArray buffer_llegada)
@@ -378,7 +357,7 @@ void Cliente::send_all_block()
         }
         else {
             QString espera = "Solo hay ";
-            espera+= QString::number(client);
+            espera.append(QString::number(client));
             ui->listWidget->addItem(espera);
         }
 }
